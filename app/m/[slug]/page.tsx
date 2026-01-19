@@ -6,19 +6,13 @@ import { useEffect, useState } from 'react';
 import { getMatchBundle } from '../../../lib/api';
 import { subscribeToMatchById } from '../../../lib/realtime';
 import type { Match, MatchSet } from '../../../types/db';
-import { useParams, useRouter } from 'next/navigation';
 
-export default function ViewerPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = typeof params.slug === 'string' ? params.slug : params.slug?.[0];
+export default function ViewerPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug;
   const [bundle, setBundle] = useState<{ match: Match | null; sets: MatchSet[] } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("Viewer slug param:", slug);
-
   useEffect(() => {
-    if (!slug) return;
     setLoading(true);
     getMatchBundle(slug)
       .then((data) => {

@@ -5,7 +5,6 @@ import { getMatchBundle, applyScore } from "@/lib/api";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AdminClient({ slug }: { slug: string }) {
-  console.log("ADMIN slug", slug);
   const [token, setToken] = useState<string | null>(null);
   const [bundle, setBundle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -13,17 +12,6 @@ export default function AdminClient({ slug }: { slug: string }) {
   const [scoreLoading, setScoreLoading] = useState<"A"|"B"|null>(null);
   const [matchEnded, setMatchEnded] = useState(false);
   const [setTransitionMsg, setSetTransitionMsg] = useState<string | null>(null);
-
-  // If slug is missing, show debug info and return early
-  if (!slug) {
-    return (
-      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <pre className="bg-yellow-100 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 rounded p-4 text-left text-xs max-w-lg overflow-x-auto">
-          {JSON.stringify({ slug, pathname: typeof window !== "undefined" ? window.location.pathname : null }, null, 2)}
-        </pre>
-      </main>
-    );
-  }
 
   useEffect(() => {
     setToken(localStorage.getItem(`throwlive:token:${slug}`));

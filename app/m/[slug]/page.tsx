@@ -1,14 +1,16 @@
 // app/m/[slug]/page.tsx
-'use client';
+export const dynamic = "force-dynamic";
 
 import Header from '../../components/Header';
 import { useEffect, useState } from 'react';
 import { getMatchBundle } from '../../../lib/api';
 import { subscribeToMatchById } from '../../../lib/realtime';
 import type { Match, MatchSet } from '../../../types/db';
+import ViewerClient from './ViewerClient';
 
-export default function ViewerPage({ params }: { params: { slug: string } }) {
-  const slug = params.slug;
+export default async function MatchViewerPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   const [bundle, setBundle] = useState<{ match: Match | null; sets: MatchSet[] } | null>(null);
   const [loading, setLoading] = useState(true);
 

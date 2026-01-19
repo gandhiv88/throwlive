@@ -5,7 +5,7 @@ import type { Match, MatchSet } from '../types/db';
 export async function listLiveMatches(): Promise<any[]> {
   const { data, error } = await supabase
     .from('matches')
-    .select('id, slug, team_a, team_b, status, updated_at')
+    .select('id, slug, team_a_name, team_b_name, status, created_at, updated_at')
     .eq('status', 'live')
     .order('updated_at', { ascending: false });
   if (error) throw error;
@@ -19,6 +19,19 @@ export async function listRecentMatches(): Promise<any[]> {
     .eq('status', 'finished')
     .order('updated_at', { ascending: false })
     .limit(10);
+  if (error) throw error;
+  return data || [];
+}
+
+export async function listRecentMatchesWithLive(): Promise<any[]> {
+  // Get matches from last 7 days, any status, ordered by created_at desc, limit 20
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from('matches')
+    .select('id, slug, team_a_name, team_b_name, status, created_at, updated_at')
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(20);
   if (error) throw error;
   return data || [];
 }

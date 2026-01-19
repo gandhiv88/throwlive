@@ -69,3 +69,7 @@ A living backlog of future features and improvements for ThrowLive (throwball sc
   _Impact: L | Complexity: M_
 - Bulk import/export of teams/matches  
   _Impact: M | Complexity: M_
+
+## 9) Data Hygiene & Maintenance
+- Purge old DB records (archival/cleanup)  
+  _Impact: S | Complexity: S_

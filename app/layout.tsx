@@ -27,6 +27,12 @@ export default function RootLayout({
   const buildMarker = "Build: 2026-01-18T00:00:00Z"; // Replace with commit hash or CI var if needed
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="ThrowLive" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className="min-h-screen bg-white dark:bg-gray-900">
         <ThemeProvider>{children}</ThemeProvider>
         <PWARegister />

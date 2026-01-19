@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import AppShell, { cardClass } from "@/components/AppShell";
-import ThemeToggle from "@/components/ThemeToggle";
 
 function randomString(len: number) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -79,7 +78,7 @@ export default function NewMatchPage() {
   }
 
   return (
-    <AppShell rightSlot={<ThemeToggle />}>
+    <AppShell>
       <div className={cardClass + " mb-8 text-center"}>
         <h1 className="text-2xl font-bold mb-2">Create Match</h1>
 

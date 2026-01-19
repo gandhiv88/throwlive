@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { getMatchBundle, applyScore } from "@/lib/api";
 import AppShell, { cardClass } from "@/components/AppShell";
-import ThemeToggle from "@/components/ThemeToggle";
+import StatusBadge, { MatchStatus } from "@/components/StatusBadge";
+import AnimatedScore from "@/components/AnimatedScore";
 
 export default function AdminClient({ slug }: { slug: string }) {
   const [token, setToken] = useState<string | null>(null);
@@ -65,13 +66,23 @@ export default function AdminClient({ slug }: { slug: string }) {
     }
   }
 
+  function formatDate(dateStr: string) {
+    const d = new Date(dateStr);
+    return d.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   if (!token) {
     return (
-      <AppShell rightSlot={<ThemeToggle />}>
+      <AppShell>
         <div className={cardClass}>
           <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center">
             <div className="w-full max-w-md px-4 py-8">
-              <div className="flex justify-end mb-4"><ThemeToggle /></div>
               <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded p-4 text-center">
                 Admin token not found on this device.<br />Use the scorer device.
               </div>
@@ -84,7 +95,7 @@ export default function AdminClient({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <AppShell rightSlot={<ThemeToggle />}>
+      <AppShell>
         <div className={cardClass}>
           <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
             <div className="text-lg text-gray-700 dark:text-gray-200">Loading…</div>
@@ -96,7 +107,7 @@ export default function AdminClient({ slug }: { slug: string }) {
 
   if (error) {
     return (
-      <AppShell rightSlot={<ThemeToggle />}>
+      <AppShell>
         <div className={cardClass}>
           <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
             <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded p-4 text-center">
@@ -113,12 +124,11 @@ export default function AdminClient({ slug }: { slug: string }) {
   const setStatus = currentSet?.status === 'ended' ? 'ENDED' : 'LIVE';
 
   return (
-    <AppShell rightSlot={<ThemeToggle />}>
+    <AppShell>
       <div className={cardClass}>
         <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <div className="w-full max-w-md mx-auto px-4 py-6">
             <div className="flex justify-between items-center mb-4">
-              <ThemeToggle />
               <button
                 type="button"
                 className="rounded px-3 py-1 bg-blue-600 text-white font-semibold shadow disabled:opacity-50"
@@ -141,8 +151,11 @@ export default function AdminClient({ slug }: { slug: string }) {
             <h1 className="text-xl font-bold text-center mb-2 text-gray-900 dark:text-gray-100">
               {match.team_a_name} vs {match.team_b_name}
             </h1>
-            <div className="text-center text-gray-700 dark:text-gray-300 mb-2">
-              <span className="font-semibold">Match status:</span> {match.status}
+            <div className="flex items-center gap-3 mb-4">
+              <StatusBadge status={match.status as MatchStatus} />
+              <span className="text-xs text-gray-500">
+                {formatDate(match.created_at)}
+              </span>
             </div>
             <div className="text-center text-gray-700 dark:text-gray-300 mb-4">
               <span className="font-semibold">Set {match.current_set_number} ({setStatus})</span>
@@ -150,7 +163,9 @@ export default function AdminClient({ slug }: { slug: string }) {
             <div className="flex gap-4 mb-6">
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col items-center">
                 <div className="text-lg font-bold mb-2 text-blue-700 dark:text-blue-300">{match.team_a_name}</div>
-                <div className="text-4xl font-extrabold mb-2">{currentSet?.team_a_score ?? 0}</div>
+                <div className="text-4xl font-extrabold mb-2">
+                  <AnimatedScore value={currentSet?.team_a_score ?? 0} />
+                </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -168,7 +183,9 @@ export default function AdminClient({ slug }: { slug: string }) {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col items-center">
                 <div className="text-lg font-bold mb-2 text-pink-700 dark:text-pink-300">{match.team_b_name}</div>
-                <div className="text-4xl font-extrabold mb-2">{currentSet?.team_b_score ?? 0}</div>
+                <div className="text-4xl font-extrabold mb-2">
+                  <AnimatedScore value={currentSet?.team_b_score ?? 0} />
+                </div>
                 <div className="flex gap-2">
                   <button
                     type="button"

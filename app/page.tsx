@@ -1,9 +1,10 @@
 "use client";
 import AppShell, { cardClass } from "@/components/AppShell";
-import ThemeToggle from "@/components/ThemeToggle";
 import Link from "next/link";
 import { listLiveMatches, listRecentMatchesWithLive } from "@/lib/api";
 import { useEffect, useState } from "react";
+import { MatchStatus } from "@/components/StatusBadge";
+import StatusBadge from "@/components/StatusBadge";
 
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
@@ -44,10 +45,10 @@ export default function Home() {
   }, [tab]);
 
   return (
-    <AppShell rightSlot={<ThemeToggle />}>
+    <AppShell>
       <div className={cardClass + " mb-8 text-center"}>
         <h1 className="text-2xl font-bold mb-2">Welcome to ThrowLive</h1>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
+        <p className="text-gray-300 mb-4">
           Realtime throwball score tracking for tournaments and matches.
         </p>
         <Link
@@ -58,12 +59,12 @@ export default function Home() {
         </Link>
       </div>
       <div className={cardClass + " mb-6"}>
-        <div className="flex border-b border-gray-200 dark:border-gray-800 mb-4">
+        <div className="flex border-b border-gray-800 mb-4">
           <button
             className={`flex-1 text-center py-2 cursor-pointer font-semibold focus:outline-none ${
               tab === 0
-                ? "border-b-2 border-blue-600 text-blue-700 dark:text-blue-300"
-                : "text-gray-500 dark:text-gray-400"
+                ? "border-b-2 border-blue-400 text-blue-300"
+                : "text-gray-400"
             }`}
             onClick={() => setTab(0)}
             type="button"
@@ -73,8 +74,8 @@ export default function Home() {
           <button
             className={`flex-1 text-center py-2 cursor-pointer font-semibold focus:outline-none ${
               tab === 1
-                ? "border-b-2 border-blue-600 text-blue-700 dark:text-blue-300"
-                : "text-gray-500 dark:text-gray-400"
+                ? "border-b-2 border-blue-400 text-blue-300"
+                : "text-gray-400"
             }`}
             onClick={() => setTab(1)}
             type="button"
@@ -83,39 +84,39 @@ export default function Home() {
           </button>
         </div>
         {loading ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-            Loading…
-          </div>
+          <div className="text-center text-gray-400 py-8">Loading…</div>
         ) : error ? (
-          <div className="text-red-600 bg-red-50 rounded p-2 mb-2">
-            {error}
-          </div>
+          <div className="text-red-400 bg-red-900 rounded p-2 mb-2">{error}</div>
         ) : tab === 0 ? (
           <ul className="space-y-4">
             {liveMatches.length === 0 ? (
-              <li className="text-gray-500 dark:text-gray-400">
+              <li className="text-gray-400 flex flex-col items-center py-8">
+                <svg width="48" height="48" fill="none" viewBox="0 0 48 48" className="mb-2 opacity-60">
+                  <circle cx="24" cy="24" r="22" stroke="#4B5563" strokeWidth="2" fill="#1F2937" />
+                  <path d="M16 32c2-2 6-2 8 0s6 2 8 0" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="18" cy="22" r="2" fill="#6B7280" />
+                  <circle cx="30" cy="22" r="2" fill="#6B7280" />
+                </svg>
                 No live matches.
               </li>
             ) : (
               liveMatches.map((m) => (
                 <li
                   key={m.slug}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0"
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-gray-800 pb-2 last:border-0"
                 >
                   <div className="font-semibold">
                     {m.team_a_name}{" "}
-                    <span className="text-gray-400">vs</span> {m.team_b_name}
+                    <span className="text-gray-500">vs</span> {m.team_b_name}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="inline-block px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      LIVE
-                    </span>
-                    <span className="text-xs text-gray-400">
+                    <StatusBadge status={"live" as MatchStatus} />
+                    <span className="text-xs text-gray-500">
                       {formatDate(m.created_at)}
                     </span>
                     <Link
                       href={`/m/${m.slug}`}
-                      className="text-blue-600 dark:text-blue-400 underline"
+                      className="text-blue-400 underline"
                     >
                       View
                     </Link>
@@ -127,35 +128,33 @@ export default function Home() {
         ) : (
           <ul className="space-y-4">
             {recentMatches.length === 0 ? (
-              <li className="text-gray-500 dark:text-gray-400">
+              <li className="text-gray-400 flex flex-col items-center py-8">
+                <svg width="48" height="48" fill="none" viewBox="0 0 48 48" className="mb-2 opacity-60">
+                  <circle cx="24" cy="24" r="22" stroke="#4B5563" strokeWidth="2" fill="#1F2937" />
+                  <path d="M16 32c2-2 6-2 8 0s6 2 8 0" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" />
+                  <circle cx="18" cy="22" r="2" fill="#6B7280" />
+                  <circle cx="30" cy="22" r="2" fill="#6B7280" />
+                </svg>
                 No recent matches.
               </li>
             ) : (
               recentMatches.map((m) => (
                 <li
                   key={m.slug}
-                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0"
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 border-b border-gray-800 pb-2 last:border-0"
                 >
                   <div className="font-semibold">
                     {m.team_a_name}{" "}
-                    <span className="text-gray-400">vs</span> {m.team_b_name}
+                    <span className="text-gray-500">vs</span> {m.team_b_name}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${
-                        m.status === "live"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : "bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                      }`}
-                    >
-                      {m.status === "live" ? "LIVE" : "FINAL"}
-                    </span>
-                    <span className="text-xs text-gray-400">
+                    <StatusBadge status={m.status as MatchStatus} />
+                    <span className="text-xs text-gray-500">
                       {formatDate(m.created_at)}
                     </span>
                     <Link
                       href={`/m/${m.slug}`}
-                      className="text-blue-600 dark:text-blue-400 underline"
+                      className="text-blue-400 underline"
                     >
                       View
                     </Link>

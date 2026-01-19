@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import AppShell, { cardClass } from "@/components/AppShell";
-import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ShareClient({ slug }: { slug: string }) {
   const [copied, setCopied] = useState<string | null>(null);
@@ -16,7 +15,7 @@ export default function ShareClient({ slug }: { slug: string }) {
   }
 
   return (
-    <AppShell rightSlot={<ThemeToggle />}>
+    <AppShell>
       <div className={cardClass}>
         <div className="mb-6">
           <div className="mb-2 font-semibold text-gray-700 dark:text-gray-200">Viewer Link</div>

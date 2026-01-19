@@ -1,8 +1,9 @@
 export const dynamic = "force-static";
+import AppShell from "@/components/AppShell";
 
 export default function OfflinePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+    <AppShell title="Offline">
       <div className="max-w-md w-full text-center">
         <svg width="64" height="64" fill="none" className="mx-auto mb-6" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="32" fill="#0b1220" opacity="0.08"/>
@@ -17,6 +18,6 @@ export default function OfflinePage() {
           ThrowLive works best with an active connection.
         </p>
       </div>
-    </main>
+    </AppShell>
   );
 }

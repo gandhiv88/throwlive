@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useTheme } from "next-themes";
+import AppShell, { cardClass } from "@/components/AppShell";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function randomString(len: number) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -16,7 +17,6 @@ function randomString(len: number) {
 
 export default function NewMatchPage() {
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
 
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
@@ -79,18 +79,9 @@ export default function NewMatchPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="mx-auto max-w-md px-4 py-6">
-        <div className="flex justify-end mb-2">
-          <button
-            type="button"
-            className="rounded px-3 py-1 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? "🌙 Dark" : "☀️ Light"}
-          </button>
-        </div>
-        <h1 className="text-xl font-semibold mb-4">Create Match</h1>
+    <AppShell rightSlot={<ThemeToggle />}>
+      <div className={cardClass + " mb-8 text-center"}>
+        <h1 className="text-2xl font-bold mb-2">Create Match</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -161,6 +152,6 @@ export default function NewMatchPage() {
           </button>
         </form>
       </div>
-    </main>
+    </AppShell>
   );
 }

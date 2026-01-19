@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AppShell, { cardClass } from "@/components/AppShell";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ShareClient({ slug }: { slug: string }) {
@@ -15,12 +16,8 @@ export default function ShareClient({ slug }: { slug: string }) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-8">
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded shadow p-6">
-        <div className="flex justify-between items-center mb-4">
-          <ThemeToggle />
-          <span className="text-xs text-gray-400">Share Match</span>
-        </div>
+    <AppShell rightSlot={<ThemeToggle />}>
+      <div className={cardClass}>
         <div className="mb-6">
           <div className="mb-2 font-semibold text-gray-700 dark:text-gray-200">Viewer Link</div>
           <div className="flex gap-2 mb-2">
@@ -57,6 +54,6 @@ export default function ShareClient({ slug }: { slug: string }) {
           <b>Note:</b> The admin link only works on the scorer device (token stored in localStorage).
         </div>
       </div>
-    </main>
+    </AppShell>
   );
 }

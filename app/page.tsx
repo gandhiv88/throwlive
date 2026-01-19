@@ -1,3 +1,5 @@
+import AppShell from "@/components/AppShell";
+import ThemeToggle from "@/components/ThemeToggle";
 import Header from "./components/Header";
 import { supabase } from "../lib/supabase";
 import Link from "next/link";
@@ -27,12 +29,12 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <AppShell rightSlot={<ThemeToggle />}>
       <Header />
       <main className="flex-1 flex flex-col gap-8 px-4 py-6">
         <Link
           href="/new"
-          className="bg-blue-600 text-white rounded-lg px-6 py-4 text-lg font-semibold shadow-md w-full max-w-xs text-center self-center"
+          className="bg-blue-600 text-white rounded-lg px-6 py-4 text-lg font-semibold shadow-md w-full max-w-xs text-center self-center mb-8"
         >
           Create Match
         </Link>
@@ -63,6 +65,6 @@ export default async function Home() {
           </ul>
         </section>
       </main>
-    </div>
+    </AppShell>
   );
 }

@@ -57,7 +57,7 @@ A living backlog of future features and improvements for ThrowLive (throwball sc
   _Impact: S | Complexity: M_
 
 ## 7) PWA / Mobile Install
-- PWA install prompt for mobile  
+- PWA install prompt for mobile **(done)**  
   _Impact: M | Complexity: S_
 - Offline scorer mode (cache match, sync later)  
   _Impact: M | Complexity: M_

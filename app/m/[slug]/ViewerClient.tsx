@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getMatchBundle } from "@/lib/api";
-import { subscribeToMatch } from "@/lib/realtime";
+import { subscribeToMatchById } from "@/lib/realtime";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function ViewerClient({ slug }: { slug: string }) {
@@ -18,7 +18,10 @@ export default function ViewerClient({ slug }: { slug: string }) {
       try {
         const data = await getMatchBundle(slug);
         setBundle(data);
-        unsub = subscribeToMatch(slug, (data: any) => setBundle(data));
+        unsub = subscribeToMatchById(slug, async () => {
+          const updated = await getMatchBundle(slug);
+          setBundle(updated);
+        });
       } catch (err: any) {
         setError(err.message || "Failed to load match");
       } finally {

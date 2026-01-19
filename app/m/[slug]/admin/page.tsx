@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { getMatchBundle, applyScore } from "@/lib/api";
 import ThemeToggle from "@/components/ThemeToggle";
 
-export default function AdminScorerPage() {
-  const params = useParams();
-  const slug = typeof params.slug === "string" ? params.slug : params.slug?.[0];
+export default function AdminScorerPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug;
   const [token, setToken] = useState<string | null>(null);
   const [bundle, setBundle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -16,10 +14,19 @@ export default function AdminScorerPage() {
   const [matchEnded, setMatchEnded] = useState(false);
   const [setTransitionMsg, setSetTransitionMsg] = useState<string | null>(null);
 
+  // If slug is missing, show error and return early
+  if (!slug) {
+    return (
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded p-4 text-center">
+          Invalid match URL: missing match slug.
+        </div>
+      </main>
+    );
+  }
+
   useEffect(() => {
-    if (slug) {
-      setToken(localStorage.getItem(`throwlive:token:${slug}`));
-    }
+    setToken(localStorage.getItem(`throwlive:token:${slug}`));
   }, [slug]);
 
   async function loadBundle() {
@@ -36,7 +43,7 @@ export default function AdminScorerPage() {
   }
 
   useEffect(() => {
-    if (slug) loadBundle();
+    loadBundle();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
@@ -48,13 +55,11 @@ export default function AdminScorerPage() {
     try {
       const prevMatch = bundle?.match;
       const prevSet = bundle?.sets?.find((s: any) => s.set_number === prevMatch?.current_set_number);
-      const data = await applyScore(slug as string, token, team, delta);
+      const data = await applyScore(slug, token, team, delta);
       setBundle(data);
-      // Automated game rules: update matchEnded if match.status is 'ended'
       if (data.match?.status === 'ended') {
         setMatchEnded(true);
       }
-      // Set transition message if set ended and current_set_number advanced
       if (
         prevSet && prevSet.status === 'ended' &&
         data.match?.current_set_number > prevMatch?.current_set_number

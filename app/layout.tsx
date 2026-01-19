@@ -23,10 +23,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const buildMarker = "Build: 2026-01-18T00:00:00Z"; // Replace with commit hash or CI var if needed
+  console.log("BUILD MARKER", buildMarker);
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-white dark:bg-gray-900">
         <ThemeProvider>{children}</ThemeProvider>
+        <footer className="w-full text-center text-xs text-gray-400 py-2 select-none pointer-events-none">
+          {buildMarker}
+        </footer>
       </body>
     </html>
   );

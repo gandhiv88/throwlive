@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,6 +7,7 @@ import { getMatchBundle, applyScore } from "@/lib/api";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AdminScorerPage({ params }: { params: { slug: string } }) {
+  console.log("ADMIN params", params);
   const slug = params.slug;
   const [token, setToken] = useState<string | null>(null);
   const [bundle, setBundle] = useState<any>(null);
@@ -14,13 +17,13 @@ export default function AdminScorerPage({ params }: { params: { slug: string } }
   const [matchEnded, setMatchEnded] = useState(false);
   const [setTransitionMsg, setSetTransitionMsg] = useState<string | null>(null);
 
-  // If slug is missing, show error and return early
+  // If slug is missing, show debug info and return early
   if (!slug) {
     return (
       <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded p-4 text-center">
-          Invalid match URL: missing match slug.
-        </div>
+        <pre className="bg-yellow-100 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 rounded p-4 text-left text-xs max-w-lg overflow-x-auto">
+          {JSON.stringify({ params, pathname: typeof window !== "undefined" ? window.location.pathname : null }, null, 2)}
+        </pre>
       </main>
     );
   }

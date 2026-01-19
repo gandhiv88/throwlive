@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ThrowLive: Throwball Score Tracker
+
+ThrowLive is a modern, mobile-first, real-time score tracking app for throwball matches. Built with Next.js, Supabase, and Tailwind CSS, it supports live scoring, admin and viewer modes, and robust game automation.
+
+## Features
+- Mobile-first, PWA-ready UI
+- Real-time updates for viewers and admins
+- Automated set/match logic (auto end set, auto next set, auto end match)
+- Admin and viewer links with secure token handling
+- Dark mode and theme toggle
+- Match creation, sharing, and history
+- Supabase backend with RLS and RPC for all writes
+- Roadmap for advanced features (see `ideas.md`)
 
 ## Getting Started
 
-First, run the development server:
+1. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Configure Supabase:**
+   - Copy `.env.example` to `.env.local` and set your Supabase URL and anon key.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
+- `app/` - Next.js App Router pages (admin, viewer, share, new match, etc.)
+- `lib/` - Supabase client, API helpers, realtime helpers
+- `components/` - ThemeProvider, ThemeToggle, Header, etc.
+- `types/` - TypeScript types for DB
+- `ideas.md` - Product roadmap and backlog
 
-## Learn More
+## Roadmap
+See [`ideas.md`](./ideas.md) for a living backlog of planned features and improvements.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
+You can deploy ThrowLive to Vercel, Netlify, or any platform supporting Next.js App Router. Configure your Supabase environment variables in the deployment settings.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+MIT

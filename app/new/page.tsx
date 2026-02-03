@@ -19,8 +19,10 @@ export default function NewMatchPage() {
 
   const [teamA, setTeamA] = useState("");
   const [teamB, setTeamB] = useState("");
-  const [setsToWin, setSetsToWin] = useState<1 | 3 | 5>(3);
+  const [setsToWin, setSetsToWin] = useState<1 | 3 | 5>(3); // 1=Best of 1, 3=Best of 3, 5=Best of 5
   const [pointsPerSet, setPointsPerSet] = useState(15);
+  const [rotationEnabled, setRotationEnabled] = useState(true);
+  const [firstServer, setFirstServer] = useState<"A" | "B">("A");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +53,8 @@ export default function NewMatchPage() {
       p_sets_to_win: setsToWin,
       p_points_per_set: pointsPerSet,
       p_admin_token: adminToken,
+      p_rotation_enabled: rotationEnabled,
+      p_first_server: firstServer,
     });
 
     // Debug log
@@ -135,6 +139,52 @@ export default function NewMatchPage() {
             <option value={15}>15 points</option>
             <option value={21}>21 points</option>
           </select>
+
+          {/* Server Rotation Settings */}
+          <div className="border rounded p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Server Tracking</span>
+              <button
+                type="button"
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  rotationEnabled ? "bg-blue-600" : "bg-gray-300"
+                }`}
+                onClick={() => setRotationEnabled(!rotationEnabled)}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    rotationEnabled ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {rotationEnabled && (
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">First Server</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className={`flex-1 rounded p-2 text-sm ${
+                      firstServer === "A" ? "bg-blue-600 text-white" : "bg-white border"
+                    }`}
+                    onClick={() => setFirstServer("A")}
+                  >
+                    {teamA || "Team A"}
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 rounded p-2 text-sm ${
+                      firstServer === "B" ? "bg-blue-600 text-white" : "bg-white border"
+                    }`}
+                    onClick={() => setFirstServer("B")}
+                  >
+                    {teamB || "Team B"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {error && (
             <div className="rounded bg-red-50 p-2 text-sm text-red-700">

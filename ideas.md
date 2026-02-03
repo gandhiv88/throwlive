@@ -5,13 +5,15 @@ A living backlog of future features and improvements for ThrowLive (throwball sc
 ---
 
 ## 1) Game Rules Automation (now + later)
-- Win-by-2 option for set/match victory  
+- Win-by-2 option for set/match victory **(done)**  
   _Impact: M | Complexity: M_
-- Auto end set + auto next set + end match (already done)  
+- Auto end set + auto next set + end match **(done)**  
   _Impact: L | Complexity: M_
+- Manual "End Match" button with reason/winner **(done)**  
+  _Impact: M | Complexity: S_
 - Undo last point via event log  
   _Impact: M | Complexity: M_
-- Server/rotation automation  
+- Server/rotation automation **(done)**  
   _Impact: M | Complexity: L_
 
 ## 2) Admin UX Improvements

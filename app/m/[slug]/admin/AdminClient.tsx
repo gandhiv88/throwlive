@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMatchBundle, applyScore } from "@/lib/api";
+import { getMatchBundle, applyScore, endMatch, switchServer } from "@/lib/api";
 import AppShell, { cardClass } from "@/components/AppShell";
 import StatusBadge, { MatchStatus } from "@/components/StatusBadge";
 import AnimatedScore from "@/components/AnimatedScore";
@@ -14,16 +14,18 @@ export default function AdminClient({ slug }: { slug: string }) {
   const [scoreLoading, setScoreLoading] = useState<"A"|"B"|null>(null);
   const [matchEnded, setMatchEnded] = useState(false);
   const [setTransitionMsg, setSetTransitionMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    setToken(localStorage.getItem(`throwlive:token:${slug}`));
-  }, [slug]);
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [endReason, setEndReason] = useState("");
+  const [endWinner, setEndWinner] = useState<"A" | "B" | null>(null);
+  const [endingMatch, setEndingMatch] = useState(false);
+  const [switchingServer, setSwitchingServer] = useState(false);
 
   async function loadBundle() {
     setLoading(true);
     setError(null);
     try {
       const data = await getMatchBundle(slug);
+      console.log('AdminClient: loadBundle', { slug, data }); // Debug log
       setBundle(data);
     } catch (err: any) {
       setError(err.message || "Failed to load match");
@@ -34,8 +36,26 @@ export default function AdminClient({ slug }: { slug: string }) {
 
   useEffect(() => {
     loadBundle();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  useEffect(() => {
+    // Debug log for bundle and token
+    console.log('AdminClient: useEffect', { slug, bundle, token });
+    // Always sync token from match bundle if available
+    if (bundle?.match?.admin_token) {
+      localStorage.setItem(`throwlive:token:${slug}`, bundle.match.admin_token);
+      setToken(bundle.match.admin_token);
+    } else {
+      setToken(localStorage.getItem(`throwlive:token:${slug}`));
+    }
+  }, [slug, bundle]);
+
+  useEffect(() => {
+    // If bundle is null after loading, treat as error
+    if (!loading && (!bundle || !bundle.match)) {
+      setError("Match not found or failed to load.");
+    }
+  }, [loading, bundle]);
 
   async function handleScore(team: "A"|"B", delta: 1|-1) {
     if (!token) return;
@@ -45,8 +65,14 @@ export default function AdminClient({ slug }: { slug: string }) {
     try {
       const prevMatch = bundle?.match;
       const prevSet = bundle?.sets?.find((s: any) => s.set_number === prevMatch?.current_set_number);
+      // Call applyScore with correct argument order: slug, adminToken, team, delta
       const data = await applyScore(slug, token, team, delta);
-      setBundle(data);
+      console.log('AdminClient: handleScore result', { slug, token, team, delta, data }); // Debug log
+      const nextBundle =
+        data?.match && Array.isArray(data?.sets)
+          ? { match: data.match, sets: data.sets }
+          : await getMatchBundle(slug);
+      setBundle(nextBundle);
       if (data.match?.status === 'ended') {
         setMatchEnded(true);
       }
@@ -63,6 +89,39 @@ export default function AdminClient({ slug }: { slug: string }) {
       setError(err.message || "Failed to update score");
     } finally {
       setScoreLoading(null);
+    }
+  }
+
+  async function handleEndMatch() {
+    if (!token || !endReason.trim()) return;
+    setEndingMatch(true);
+    setError(null);
+    try {
+      const data = await endMatch(slug, token, endReason, endWinner);
+      setBundle(data);
+      setMatchEnded(true);
+      setShowEndModal(false);
+      setEndReason("");
+      setEndWinner(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to end match");
+    } finally {
+      setEndingMatch(false);
+    }
+  }
+
+  async function handleSwitchServer() {
+    if (!token) return;
+    setSwitchingServer(true);
+    setError(null);
+    try {
+      const newServer = bundle?.match?.server_team === "A" ? "B" : "A";
+      const data = await switchServer(slug, token, newServer);
+      setBundle(data);
+    } catch (err: any) {
+      setError(err.message || "Failed to switch server");
+    } finally {
+      setSwitchingServer(false);
     }
   }
 
@@ -105,6 +164,20 @@ export default function AdminClient({ slug }: { slug: string }) {
     );
   }
 
+  if (!bundle || !bundle.match) {
+    return (
+      <AppShell>
+        <div className={cardClass}>
+          <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+            <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 rounded p-4 text-center">
+              Match not found or failed to load.
+            </div>
+          </main>
+        </div>
+      </AppShell>
+    );
+  }
+
   if (error) {
     return (
       <AppShell>
@@ -137,6 +210,15 @@ export default function AdminClient({ slug }: { slug: string }) {
               >
                 Refresh
               </button>
+              {match?.status !== 'ended' && (
+                <button
+                  type="button"
+                  className="rounded px-3 py-1 bg-red-600 text-white font-semibold shadow disabled:opacity-50"
+                  onClick={() => setShowEndModal(true)}
+                >
+                  End Match
+                </button>
+              )}
             </div>
             {matchEnded && (
               <div className="bg-yellow-200 dark:bg-yellow-900 text-yellow-900 dark:text-yellow-100 rounded p-3 mb-4 text-center font-semibold">
@@ -151,12 +233,27 @@ export default function AdminClient({ slug }: { slug: string }) {
             <h1 className="text-xl font-bold text-center mb-2 text-gray-900 dark:text-gray-100">
               {match.team_a_name} vs {match.team_b_name}
             </h1>
-            <div className="flex items-center gap-3 mb-4">
-              <StatusBadge status={match.status as MatchStatus} />
-              <span className="text-xs text-gray-500">
-                {formatDate(match.created_at)}
-              </span>
-            </div>
+            {match.rotation_enabled && (
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-sm text-gray-500 dark:text-gray-400">Server:</span>
+                <div className="flex items-center gap-1">
+                  <span className={`font-bold ${match.server_team === "A" ? "text-blue-500" : "text-pink-500"}`}>
+                    {match.server_team === "A" ? match.team_a_name : match.team_b_name}
+                  </span>
+                  <span className="text-lg">🏐</span>
+                </div>
+                {match?.status !== 'ended' && (
+                  <button
+                    type="button"
+                    className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded px-2 py-1 hover:bg-gray-300 dark:hover:bg-gray-600"
+                    onClick={() => handleSwitchServer()}
+                    disabled={scoreLoading !== null}
+                  >
+                    Switch
+                  </button>
+                )}
+              </div>
+            )}
             <div className="text-center text-gray-700 dark:text-gray-300 mb-4">
               <span className="font-semibold">Set {match.current_set_number} ({setStatus})</span>
             </div>
@@ -202,6 +299,83 @@ export default function AdminClient({ slug }: { slug: string }) {
                 </div>
               </div>
             </div>
+
+            {/* End Match Modal */}
+            {showEndModal && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
+                  <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-gray-100">End Match</h2>
+                  
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Reason for ending
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full rounded border border-gray-300 dark:border-gray-600 p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      placeholder="e.g., Team withdrew, Weather, etc."
+                      value={endReason}
+                      onChange={(e) => setEndReason(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Declare Winner (optional)
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className={`flex-1 rounded p-2 font-semibold ${
+                          endWinner === "A"
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        }`}
+                        onClick={() => setEndWinner(endWinner === "A" ? null : "A")}
+                      >
+                        {match.team_a_name}
+                      </button>
+                      <button
+                        type="button"
+                        className={`flex-1 rounded p-2 font-semibold ${
+                          endWinner === "B"
+                            ? "bg-pink-600 text-white"
+                            : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        }`}
+                        onClick={() => setEndWinner(endWinner === "B" ? null : "B")}
+                      >
+                        {match.team_b_name}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Leave unselected to determine by sets won
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="flex-1 rounded p-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold"
+                      onClick={() => {
+                        setShowEndModal(false);
+                        setEndReason("");
+                        setEndWinner(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="flex-1 rounded p-2 bg-red-600 text-white font-semibold disabled:opacity-50"
+                      onClick={handleEndMatch}
+                      disabled={!endReason.trim() || endingMatch}
+                    >
+                      {endingMatch ? "Ending..." : "End Match"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>

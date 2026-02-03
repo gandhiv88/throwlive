@@ -95,6 +95,15 @@ export default function ViewerClient({ slug }: { slug: string }) {
           <div className="text-center text-gray-700 dark:text-gray-300 mb-4">
             <span className="font-semibold">Set {match.current_set_number} ({setStatus})</span>
           </div>
+          {match.rotation_enabled && (
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="text-sm text-gray-500 dark:text-gray-400">Server:</span>
+              <span className={`font-bold ${match.server_team === "A" ? "text-blue-500" : "text-pink-500"}`}>
+                {match.server_team === "A" ? match.team_a_name : match.team_b_name}
+              </span>
+              <span className="text-lg">🏐</span>
+            </div>
+          )}
           <div className="flex gap-4 mb-6">
             <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex flex-col items-center">
               <div className="text-lg font-bold mb-2 text-blue-700 dark:text-blue-300">{match.team_a_name}</div>

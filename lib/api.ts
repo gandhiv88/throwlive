@@ -124,3 +124,33 @@ export async function applyScore(
   if (error) throw new Error(error.message);
   return data;
 }
+
+export async function endMatch(
+  slug: string,
+  adminToken: string,
+  reason: string,
+  winner?: "A" | "B" | null
+): Promise<{ match: any; sets: any[] }> {
+  const { data, error } = await supabase.rpc("end_match", {
+    p_slug: slug,
+    p_admin_token: adminToken,
+    p_reason: reason,
+    p_winner: winner ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function switchServer(
+  slug: string,
+  adminToken: string,
+  newServer: "A" | "B"
+): Promise<{ match: any; sets: any[] }> {
+  const { data, error } = await supabase.rpc("switch_server", {
+    p_slug: slug,
+    p_admin_token: adminToken,
+    p_server_team: newServer,
+  });
+  if (error) throw new Error(error.message);
+  return data;
+}
